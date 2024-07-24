@@ -157,6 +157,9 @@ vim.opt.scrolloff = 10
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
+-- set jj
+vim.keymap.set('i', 'jj', '<Esc>', { silent = true })
+
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -913,3 +916,43 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+if vim.g.vscode then
+  local vscode = require('vscode-neovim')
+  local mappings = {
+    up = 'k',
+    down = 'j',
+    wrappedLineStart = '0',
+    wrappedLineFirstNonWhitespaceCharacter = '^',
+    wrappedLineEnd = '$',
+  }
+
+  local function moveCursor(to, select)
+    return function()
+      local mode = vim.api.nvim_get_mode()
+      if mode.mode == 'V' or mode.mode == '' then
+        return mappings[to]
+      end
+
+      vscode.action('cursorMove', {
+        args = {
+          {
+            to = to,
+            by = 'wrappedLine',
+            value = vim.v.count1,
+            select = select
+          },
+        },
+      })
+      return '<Ignore>'
+    end
+  end
+
+  vim.keymap.set('n', 'k', moveCursor('up'), { expr = true })
+  vim.keymap.set('n', 'j', moveCursor('down'), { expr = true })
+
+  vim.keymap.set('v', 'k', moveCursor('up', true), { expr = true })
+  vim.keymap.set('v', 'j', moveCursor('down', true), { expr = true })
+end
+
+vim.notify('initialization complated')
