@@ -869,11 +869,16 @@ require('lazy').setup({
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
   },
-
+  -- MY PLUGINS
   {
     -- IME Settings
     'kaz399/spzenhan.vim',
     -- "pepo-le/win-ime-con.nvim"
+  },
+
+  {
+    -- Help 日本語化
+    'vim-jp/vimdoc-ja',
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -968,3 +973,6 @@ if vim.g.vscode then
 end
 
 vim.notify('initialization complated')
+
+-- 自作コマンドの定義
+vim.api.nvim_create_user_command('LuaConfig', 'e $MYVIMRC', {})
