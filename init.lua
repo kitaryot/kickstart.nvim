@@ -154,6 +154,11 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- インデントの設定
+vim.o.expandtab = true
+vim.o.tabstop = 2
+vim.o.shiftwidth = 2
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -880,7 +885,25 @@ require('lazy').setup({
     -- Help 日本語化
     'vim-jp/vimdoc-ja',
   },
-
+  {
+    'github/copilot.vim'
+  },
+  {
+    'nvim-lua/plenary.nvim'
+  },
+  {
+    "CopilotC-Nvim/CopilotChat.nvim",
+    branch = "canary",
+    dependencies = {
+      { "zbirenbaum/copilot.lua" }, -- or github/copilot.vim
+      { "nvim-lua/plenary.nvim" }, -- for curl, log wrapper
+    },
+    opts = {
+      debug = true, -- Enable debugging
+      -- See Configuration section for rest
+    },
+    -- See Commands section for default commands if you want to lazy load on them
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -976,3 +999,62 @@ vim.notify('initialization complated')
 
 -- 自作コマンドの定義
 vim.api.nvim_create_user_command('LuaConfig', 'e $MYVIMRC', {})
+
+-- copilot
+require("CopilotChat").setup({
+  show_help = "yes",
+  prompts = {
+      Explain = {
+          prompt = "/COPILOT_EXPLAIN 上記のコードを猫になりきって日本語で説明してください",
+          mapping = '<leader>ce',
+          description = "バディにコードの説明をお願いする",
+      },
+      Review = {
+          prompt = '/COPILOT_REVIEW 選択したコードをレビューしてください。レビューコメントは猫になりきって日本語でお願いします。',
+          mapping = '<leader>cr',
+          description = "バディにコードのレビューをお願いする",
+      },
+      Fix = {
+          prompt = "/COPILOT_FIX このコードには問題があります。バグを修正したコードを表示してください。説明は猫になりきって日本語でお願いします。",
+          mapping = '<leader>cf',
+          description = "バディにコードの修正をお願いする",
+      },
+      Optimize = {
+          prompt = "/COPILOT_REFACTOR 選択したコードを最適化し、パフォーマンスと可読性を向上させてください。説明は猫になりきって日本語でお願いします。",
+          mapping = '<leader>co',
+          description = "バディにコードの最適化をお願いする",
+      },
+      Docs = {
+          prompt = "/COPILOT_GENERATE 選択したコードに関するドキュメントコメントを日本語で生成してください。",
+          mapping = '<leader>cd',
+          description = "バディにコードのドキュメント作りをお願いする",
+      },
+      Tests = {
+          prompt = "/COPILOT_TESTS 選択したコードの詳細なユニットテストを書いてください。説明は猫になりきって日本語でお願いします。",
+          mapping = '<leader>ct',
+          description = "バディにコードのテストコード作成をお願いする",
+      },
+      FixDiagnostic = {
+          prompt = 'コードの診断結果に従って問題を修正してください。修正内容の説明は猫になりきって日本語でお願いします。',
+          mapping = '<leader>cd',
+          description = "バディにコードの静的解析結果に基づいた修正をお願いする",
+          selection = require('CopilotChat.select').diagnostics,
+      },
+      Commit = {
+          prompt =
+          'commitize の規則に従って、変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコード ブロックでラップしてください。メッセージは日本語でお願いします。',
+          mapping = '<leader>cc',
+          description = "バディにコミットメッセージの作成をお願いする",
+          selection = require('CopilotChat.select').gitdiff,
+      },
+      CommitStaged = {
+          prompt =
+          'commitize の規則に従って、ステージ済みの変更に対するコミットメッセージを記述してください。 タイトルは最大50文字で、メッセージは72文字で折り返されるようにしてください。 メッセージ全体を gitcommit 言語のコード ブロックでラップしてください。メッセージは日本語でお願いします。',
+          mapping = '<leader>cs',
+          description = "バディにステージ済みのコミットメッセージの作成をお願いする",
+          selection = function(source)
+              return require('CopilotChat.select').gitdiff(source, true)
+          end,
+      },
+  },
+})
